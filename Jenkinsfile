@@ -5,11 +5,11 @@ pipeline {
                 apiVersion: v1
                 kind: Pod
                 spec:
-                  serviceAccountName: jenkins-role
+                  serviceAccountName: leidos-jenkins
                   restartPolicy: Never
                   containers:
                     - name: python
-                      image: python:3.11-alpine3.17
+                      image: python:3-alpine
                       command: ['cat']
                       tty: true
                     - name: awscli
