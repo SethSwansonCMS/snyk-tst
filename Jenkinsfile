@@ -5,7 +5,7 @@ pipeline {
                 apiVersion: v1
                 kind: Pod
                 spec:
-                  serviceAccountName: leidos-jenkins
+                  serviceAccountName: leidos-mgmt
                   restartPolicy: Never
                   containers:
                     - name: python
