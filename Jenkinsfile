@@ -1,35 +1,44 @@
 pipeline {
-    agent {
-        kubernetes {
-            yaml '''
-                apiVersion: v1
-                kind: Pod
-                spec:
-                  serviceAccountName: jenkins-role
-                  restartPolicy: Never
-                  containers:
-                    - name: python
-                      image: python:3.11-alpine3.17
-                      command: ['cat']
-                      tty: true
-                    - name: awscli
-                      image: amazon/aws-cli
-                      command: ['cat']
-                      tty: true
-            '''
-	    }
-    }
+  agent {
+    kubernetes {
+        yaml '''
+            apiVersion: v1
+            kind: Pod
+            spec:
+              serviceAccountName: leidos-mgmt
+              restartPolicy: Never
+              containers:
+                - name: python
+                  image: python:3-alpine
+                  command: ['cat']
+                  tty: true
+                - name: awscli
+                  image: amazon/aws-cli
+                  command: ['cat']
+                  tty: true
+                - name: snyk
+                  image: snyk/snyk:alpine
+                  command: ['cat']
+                  tty: true
+        '''
+	  }
+  }
 
-    stages {
-        stage("build"){
-            steps {
-                container("python"){
-                    sh '''
-                    echo "Doing something"
-                    '''
-                }
-            }
+  environment {
+    SNYK_TOKEN = credentials('jenkins-snyk')
+  }
+
+  stages {
+    stage("SnykTest") {
+      steps {
+        container("snyk") {
+          sh '''
+          cd _terraform && \
+          snyk iac test --severity-threshold=low --report \
+          --target-name=snyk-cli-tst --org="bdclmdc-etc-bdclmdc-etc"
+          '''
         }
+      }
     }
+  }
 }
-
